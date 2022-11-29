@@ -1,8 +1,10 @@
 # MOMENT MERN APP
 - [x] basic setup
 - [x] make .env file for keys and credentials
-- [] build a MONGODB cluster
-- [] connect with MONGODB cluster
+- [x] build a MONGODB cluster
+- [x] connect with MONGODB cluster
+- [x] replaced mongoose with PRISMA ORM 
+- [x] connected PRISMA with MONGO
 - [] build backend
 - [] comeup with frontend design
 - [] make frontend
