@@ -1,0 +1,23 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+
+model PostMessage2 {
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+ title String
+ message String
+ creator String
+ tags String[] 
+ selectedFile String
+ likeCount Int @default(0)
+ date DateTime @default(now()) 
+}
