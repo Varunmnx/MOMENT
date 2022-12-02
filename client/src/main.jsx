@@ -2,9 +2,23 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
+import { configureStore } from "@reduxjs/toolkit";
+import { Provider } from 'react-redux';
+import authSlice from './store/auth';
+import { BrowserRouter  as Router} from 'react-router-dom';
+import Routes from "./Navigation/router"
+
+const store = configureStore({
+  reducer: {
+    auth: authSlice.reducer,
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <Router>
+    <Provider store={store}>
+       <Routes />
+     </Provider>
+  </Router>
+  
 )

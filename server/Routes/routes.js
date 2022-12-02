@@ -1,8 +1,8 @@
 import express  from "express";
-import { homePageFunction, getPosts,createPost } from "../controllers/controller.js"
+import {signupUser,loginUser } from "../controllers/controller.js"
 let router = express.Router()
 
-router.get("/",homePageFunction)
-router.get("/messages",getPosts)
-router.get("/post",createPost)
+router.post("/register",signupUser)
+router.post("/signin",loginUser)
+
 export default router;
