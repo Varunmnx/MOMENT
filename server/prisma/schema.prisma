@@ -18,16 +18,16 @@ model Products{
   description String
   price Float
   rating Int @default(0)
-  images Images
+  images Images[]
   category String
   stock Int @default(1)
-  numberofreviews Reviews
+  numberofreviews Reviews[]
   createdat DateTime @default(now())
 }
 
 type Images{
   public_id String @default("")
-  url String  @default("https://avatars.dicebear.com/api/croodles-neutral/sad.svg")
+  url String  @default("")
 }
 
 type Reviews{
@@ -38,7 +38,7 @@ type Reviews{
 
 type UserAvatar {
   public_id String @default("")
-  url       String @default("")
+  url       String @default("https://avatars.dicebear.com/api/croodles-neutral/sad.svg")
 }
 
 model User {

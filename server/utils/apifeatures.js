@@ -10,12 +10,13 @@ export class Apifeatures {
   async filter() {
             let copyqry = { ...this.querystr };
             if (copyqry.keyword || copyqry.category) {
+                         console.log("___api__features__13")
                         this.query = await this.searchwithkeyandcat(copyqry.keyword,copyqry.category)
                         console.log("runned");
-            } else {
+            } else if(!copyqry.keyword || !copyqry.category){
                         this.query = await prisma.products.findMany();
+                        console.log("runned 17")
             }
-            console.log(this.query);
 
   //pagination
             if (copyqry.page && copyqry.limit) {
@@ -28,7 +29,7 @@ export class Apifeatures {
 
 //for fetching products with keyword and category
 async searchwithkeyandcat(keyword,category){
-
+   console.log("___apifeatures___32")
    let result =  await prisma.products.findMany({
                                                     where: {
                                                     OR: [

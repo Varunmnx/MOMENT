@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { Errorhandler } from "../utils/errorhandler.js";
 const prisma = new PrismaClient();
-import { asyncErrorhanlder } from "../middlewares/asyncErrorhandler.js";
+import { asyncErrorhandler } from "../middlewares/asyncErrorhandler.js";
 import { Apifeatures } from "../utils/apifeatures.js";
 
-export const findAllProduct = asyncErrorhanlder(async (req, res, next) => {
+export const findAllProduct = asyncErrorhandler(async (req, res, next) => {
+  console.log("___finding_all_products____")
   //to find the requesting url
   try{
   req.headers.origin && console.log(req.headers.origin);
@@ -20,10 +21,10 @@ export const findAllProduct = asyncErrorhanlder(async (req, res, next) => {
   } 
 })
 
-export const productDetails = asyncErrorhanlder(async (req, res, next) => {
+export const productDetails = asyncErrorhandler(async (req, res, next) => {
   const { id } = req.params;
   try {
-    const product = await prisma.products.findUnique({
+    const product = await prisma.products.findMany({
       where: {
         id: id,
       },
@@ -35,7 +36,7 @@ export const productDetails = asyncErrorhanlder(async (req, res, next) => {
 })
 
 
-export const updateproduct =asyncErrorhanlder( async (req, res, next) => {
+export const updateproduct =asyncErrorhandler( async (req, res, next) => {
   const { id } = req.params;
   const {
     name,
@@ -82,7 +83,7 @@ export const updateproduct =asyncErrorhanlder( async (req, res, next) => {
   }
 });
 
-export const createnewProduct = asyncErrorhanlder(async (req, res, next) => {
+export const createnewProduct = asyncErrorhandler(async (req, res, next) => {
   const {
     name,
     description,
