@@ -8,6 +8,7 @@ function App() {
   return (
     <div className="App">
       <h1>Hello</h1>
+      <h1>{import.meta.env.VITE_API_END_POINT}</h1>
     </div>
   )
 }

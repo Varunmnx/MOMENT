@@ -1,74 +1,115 @@
 import { PrismaClient } from "@prisma/client";
+import { Errorhandler } from "../utils/errorhandler.js";
 const prisma = new PrismaClient();
-import bcrypt from "bcrypt"
+import { asyncErrorhanlder } from "../middlewares/asyncErrorhandler.js";
+import { Apifeatures } from "../utils/apifeatures.js";
 
-export function homePageFunction(req, res) {
-  res.send("Hello");
-}
+export const findAllProduct = asyncErrorhanlder(async (req, res, next) => {
+  //to find the requesting url
+  try{
+  req.headers.origin && console.log(req.headers.origin);
+  // console.log(req.headers.referer)
+  // console.log(req.params)
+  console.log(req.query)
+  let  products =  await new Apifeatures(await prisma.products,req.query).filter()
+  
+  let fetchedproducts = (await products).query
+  res.status(200).json(fetchedproducts);
+  }catch(err){
+    next(err)
+  } 
+})
 
-
-export const sendpara = (req, res) => {
-  res.json(req.body);
-  console.log(req.query);
-  console.log(req.params);
-};
-
-export const signupUser =async(req,res)=>{
-    try{
-        const { name, email, password } = req.body
-
-        const existing = await prisma.user.findFirst({
-            where: { email , },});
-         console.log(existing)
-
-          if(!existing){
-            const salt = await bcrypt.genSalt()
-            const hashedpassword = await bcrypt.hash(password,salt)
-
-            await prisma.user.create({data:{
-                name,
-                email,
-                password:hashedpassword
-              }})
-
-            res.status(200).json(
-                   {newuser:true})
-              }
-
-          else{
-                  res.status(404).json({
-                      existing:true
-                    })
-              }
-          
-    }catch(err){
-        console.error(err)
-    }
-}
+export const productDetails = asyncErrorhanlder(async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const product = await prisma.products.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    res.status(201).json(product);
+  } catch (err) {
+    next(new Errorhandler("product not found",404))
+  }
+})
 
 
-export const loginUser = async(req, res) => {
-    const {email,name,password} = req.body
-    const existing =await prisma.user.findFirst({
+export const updateproduct =asyncErrorhanlder( async (req, res, next) => {
+  const { id } = req.params;
+  const {
+    name,
+    description,
+    price,
+    rating,
+    images,
+    stock,
+    numberofreviews,
+    category,
+  } = req.body;
+
+  try {
+    let product = await prisma.products.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (product.length == 0) {
+      next(new Errorhandler("no such product ",201))
+    } else {
+      let updatedproduct = await prisma.products.update({
         where: {
-         email,
+          id,
         },
-      }); 
+        data: {
+          name,
+          description,
+          price,
+          rating,
+          images,
+          stock,
+          numberofreviews,
+          category,
+        },
+      });
+      res.status(201).json({
+        isaproduct: true,
+        updatedproduct,
+      });
+    }
+  } catch (err) {
+    next(new Errorhandler("product cannot be updated",404))
+  }
+});
 
-     try{
-          if (await bcrypt.compare(password,existing.password) ){
-                  res.status(201).json({
-                  message:"hello "+existing.name+" !",})
-            }
-          
-          else if(existing&&! await bcrypt.compare(password,existing.password)){
-                  res.status(401).json({
-                    message:"wrong password"
-                  })
-            }
-        }
-     catch(err){
-            res.send("failure")
-            console.log(err)
-      }
-};
+export const createnewProduct = asyncErrorhanlder(async (req, res, next) => {
+  const {
+    name,
+    description,
+    price,
+    rating,
+    images,
+    stock,
+    numberofreviews,
+    category,
+  } = req.body;
+
+
+    let newproduct = await prisma.products.create({
+      data: {
+        name,
+        description,
+        price,
+        rating,
+        images,
+        stock,
+        numberofreviews,
+        category,
+      },
+    });
+    if (newproduct) {
+      res.status(200).json(newproduct);
+    }
+
+}
+)

@@ -1,12 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
 import { configureStore } from "@reduxjs/toolkit";
-import { Provider } from 'react-redux';
-import authSlice from './store/auth';
-import { BrowserRouter  as Router} from 'react-router-dom';
-import Routes from "./Navigation/router"
+import { Provider } from "react-redux";
+import authSlice from "./store/auth";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import Routessuperset from "./Navigation/router";
+
 
 const store = configureStore({
   reducer: {
@@ -14,11 +15,10 @@ const store = configureStore({
   },
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <Router>
-    <Provider store={store}>
-       <Routes />
-     </Provider>
-  </Router>
-  
-)
+ReactDOM.createRoot(document.getElementById("root")).render(
+    <Router>
+      <Provider store={store}>
+        <Routessuperset />
+      </Provider>
+    </Router>
+);
