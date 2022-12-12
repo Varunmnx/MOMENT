@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PrismaClient } from '@prisma/client'
+
 import { errorHandlerMiddleWare } from "./middlewares/errormiddleware.js";
 const prisma = new PrismaClient()
 

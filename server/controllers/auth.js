@@ -71,4 +71,15 @@ export const isAuthenticateduser =asyncErrorhandler(async(req,res,next)=>{
 export const logout =asyncErrorhandler(async(req,res,next)=>{
 
        res.clearCookie("token").status(200).json({message:"logged out",success:true})
-})
+  })
+
+export const isuserAdmin=(...roles)=>{  
+
+  return (req,res,next)=>{
+    if(!roles.includes(req.user.role)){
+  
+          next( new Errorhandler(`Role ${req.user.roles} is not authorized to make changes`,201))
+    }
+    next()
+  }
+}

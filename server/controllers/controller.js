@@ -5,13 +5,13 @@ import { asyncErrorhandler } from "../middlewares/asyncErrorhandler.js";
 import { Apifeatures } from "../utils/apifeatures.js";
 
 export const findAllProduct = asyncErrorhandler(async (req, res, next) => {
-  console.log("___finding_all_products____")
+
   //to find the requesting url
   try{
   req.headers.origin && console.log(req.headers.origin);
   // console.log(req.headers.referer)
   // console.log(req.params)
-  console.log(req.query)
+ 
   let  products =  await new Apifeatures(await prisma.products,req.query).filter()
   
   let fetchedproducts = (await products).query
@@ -110,7 +110,23 @@ export const createnewProduct = asyncErrorhandler(async (req, res, next) => {
     });
     if (newproduct) {
       res.status(200).json(newproduct);
-    }
+    }  } )
 
-}
-)
+
+export const deleteProduct=asyncErrorhandler(async(req,res,next)=>{
+  let {id} = req.params
+  
+  if(!id)next(new Errorhandler("Please provide an ID",201))
+
+  let product = await prisma.products.delete({
+    where:{
+      id:id
+    }
+  })
+  res.send({
+             status:"success",
+             product:product 
+            
+            })
+  next()
+})
