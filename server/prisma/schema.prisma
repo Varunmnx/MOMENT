@@ -20,9 +20,15 @@ model Products{
   rating Int @default(0)
   images Images[]
   category String
+  user Creator?
   stock Int @default(1)
   numberofreviews Reviews[]
   createdat DateTime @default(now())
+}
+
+type Creator{
+  type String
+  ref String @default("user")
 }
 
 type Images{

@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import bcrypt from "bcrypt"
 import { handleJWTSIGN } from "./JWThandler.js";
-
+import crypto from "crypto"
 
 
 export async function userCreator(name,email,password,res){
@@ -44,3 +44,29 @@ export async function letuserlogin(user,res){
       })
     return
 }
+
+
+export function generateResetPasswordToken(){
+  //generate token
+  let resetToken = crypto.randomBytes(20).toString("hex");
+  // hashing 
+  let resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex")
+
+  return resetPasswordToken
+}
+
+
+export async function appendResetTokenAndResetTokenExpire(email){
+  let resetPasswordToken = String(generateResetPasswordToken())
+  let resetPasswordExpire = String(Date.now() + 15 * 60 * 1000)
+  let withres =await prisma.user.update({
+                                              where:{
+                                                email :email
+                                              },
+                                              data:{
+                                                   resetPasswordToken,
+                                                   resetPasswordExpire
+                                              } })
+                                            
+  return withres
+                                            }

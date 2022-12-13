@@ -6,15 +6,12 @@ import { Apifeatures } from "../utils/apifeatures.js";
 
 export const findAllProduct = asyncErrorhandler(async (req, res, next) => {
 
-  //to find the requesting url
   try{
   req.headers.origin && console.log(req.headers.origin);
-  // console.log(req.headers.referer)
-  // console.log(req.params)
- 
   let  products =  await new Apifeatures(await prisma.products,req.query).filter()
   
   let fetchedproducts = (await products).query
+
   res.status(200).json(fetchedproducts);
   }catch(err){
     next(err)
@@ -71,6 +68,10 @@ export const updateproduct =asyncErrorhandler( async (req, res, next) => {
           stock,
           numberofreviews,
           category,
+          user : {
+            type: req.user.id,
+          }
+          
         },
       });
       res.status(201).json({
@@ -106,6 +107,9 @@ export const createnewProduct = asyncErrorhandler(async (req, res, next) => {
         stock,
         numberofreviews,
         category,
+        user : {
+          type: req.user.id,
+        }
       },
     });
     if (newproduct) {
@@ -118,11 +122,7 @@ export const deleteProduct=asyncErrorhandler(async(req,res,next)=>{
   
   if(!id)next(new Errorhandler("Please provide an ID",201))
 
-  let product = await prisma.products.delete({
-    where:{
-      id:id
-    }
-  })
+  let product = await prisma.products.delete({ where:{  id:id }  })
   res.send({
              status:"success",
              product:product 

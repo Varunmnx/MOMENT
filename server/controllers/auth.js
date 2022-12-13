@@ -3,9 +3,9 @@ const prisma = new PrismaClient();
 import { Errorhandler } from "../utils/errorhandler.js";
 import { asyncErrorhandler } from "../middlewares/asyncErrorhandler.js";
 import bcrypt from "bcrypt"
-import { userCreator } from "../utils/userhelper.js";
-import { letuserlogin } from "../utils/userhelper.js";
+import { userCreator,letuserlogin,appendResetTokenAndResetTokenExpire } from "../utils/userhelper.js";
 import jwt from "jsonwebtoken"
+
 
 export const signupUser =asyncErrorhandler(async(req,res,next)=>{
 
@@ -57,6 +57,7 @@ export const isAuthenticateduser =asyncErrorhandler(async(req,res,next)=>{
     let {token} = req.cookies
     if(!token){
       return next(new Errorhandler("please login to access the page",401))
+    
     }
     const decodedData=jwt.verify(token,process.env.JWT_SECRET)
 
@@ -83,3 +84,56 @@ export const isuserAdmin=(...roles)=>{
     next()
   }
 }
+
+export const listallUsers=asyncErrorhandler(async(req,res,next)=>{
+    let allusers = await prisma.user.findMany()
+    res.status(200).json({all:allusers})
+})
+
+
+export const forgotpassword = asyncErrorhandler(async(req,res,next)=>{
+
+  let {email} = req.body
+  let user = await prisma.user.findUnique({
+    where:{
+      email:email
+    }
+  })
+ 
+  if(!user){
+    next(new Errorhandler("no user found",404)) 
+  }
+    let updateduser = await appendResetTokenAndResetTokenExpire(email)
+    const resetpasswordUrl = `${req.protocol}://${req.get("host")}://password/reset/${updateduser.resetPasswordToken}`
+    const message = `Your password reset token is :- \n\n ${resetpasswordUrl} \n\n please go to this link to reset the password`
+    try{
+      //sendmail has to be created
+      await sendEmail({
+        email :updateduser.email,
+        subject : "password reset for Ecommerce website",
+        message
+      })
+      
+      res.status(200).json({
+        success:true,
+        message:`Email sent to ${updateduser.email} please check your email to reset your password`
+      })
+    }catch(err){
+      console.log(updateduser.email)
+      let user =await prisma.user.update({
+        where:{
+          email:updateduser.email
+        },
+        data:{
+          resetPasswordExpire : "",
+          resetPasswordToken : ""
+        }
+      })
+    console.log(user)
+    next(new Errorhandler("unexpected email sending failure",404))
+    }
+  
+
+}
+  )
+
