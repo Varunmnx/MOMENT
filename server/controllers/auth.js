@@ -5,6 +5,8 @@ import { asyncErrorhandler } from "../middlewares/asyncErrorhandler.js";
 import bcrypt from "bcrypt"
 import { userCreator,letuserlogin,appendResetTokenAndResetTokenExpire } from "../utils/userhelper.js";
 import jwt from "jsonwebtoken"
+import { sendEmail } from "../utils/emailHelper.js";
+import crypto from "crypto"
 
 
 export const signupUser =asyncErrorhandler(async(req,res,next)=>{
@@ -104,36 +106,75 @@ export const forgotpassword = asyncErrorhandler(async(req,res,next)=>{
     next(new Errorhandler("no user found",404)) 
   }
     let updateduser = await appendResetTokenAndResetTokenExpire(email)
-    const resetpasswordUrl = `${req.protocol}://${req.get("host")}://password/reset/${updateduser.resetPasswordToken}`
+    const resetpasswordUrl = `${req.protocol}://${req.get("host")}/password/reset/${updateduser.resetPasswordToken}`
     const message = `Your password reset token is :- \n\n ${resetpasswordUrl} \n\n please go to this link to reset the password`
     try{
       //sendmail has to be created
-      await sendEmail({
-        email :updateduser.email,
-        subject : "password reset for Ecommerce website",
-        message
-      })
-      
-      res.status(200).json({
-        success:true,
-        message:`Email sent to ${updateduser.email} please check your email to reset your password`
-      })
-    }catch(err){
-      console.log(updateduser.email)
-      let user =await prisma.user.update({
-        where:{
-          email:updateduser.email
-        },
-        data:{
-          resetPasswordExpire : "",
-          resetPasswordToken : ""
-        }
-      })
-    console.log(user)
-    next(new Errorhandler("unexpected email sending failure",404))
-    }
-  
-
-}
+          sendEmail({
+                        email :updateduser.email,
+                        subject : "password reset for Ecommerce website",
+                        message
+                      },next)
+                      
+          res.status(200).json({
+            success:true,
+            message:`Email sent to ${updateduser.email} please check your email to reset your password`
+          })
+        }catch(err){
+              let user =await prisma.user.update({
+                where:{
+                  email:updateduser.email
+                },
+                data:{
+                  resetPasswordExpire : "",
+                  resetPasswordToken : ""
+                }
+              })
+            console.log(user)
+            next(new Errorhandler("unexpected email sending failure",404))
+            }
+          }
   )
 
+
+
+export const resetPassword = asyncErrorhandler(async(req,res,next) =>{
+  let newpassword = req.body.password
+  console.log(newpassword)
+  let {id} = req.params 
+  let user = await prisma.user.findFirst({
+                        where:{
+                          resetPasswordToken :id
+                        }
+                      })
+  console.log("____old__user___")
+  console.log(user)
+  let now = new Date( Date.now())
+
+  const salt = await bcrypt.genSalt()
+  const hashedpassword = await bcrypt.hash(newpassword,salt)
+
+
+  if(!user){
+    next(new Errorhandler("sorry your time is expired it seems or something went wrong",404)) }                
+  if(user &&( Number( user.resetPasswordExpire ) >= Number( now )  ) ){
+
+              let reseted = await prisma.user.update({
+                                                        where:{
+                                                          email:user.email
+                                                        },
+                                                        data:{
+                                                          password: hashedpassword,
+                                                          resetPasswordToken:"",
+                                                          resetPasswordExpire:""
+                                                        }
+                                                        })
+          
+              res.status(200).json({
+                reseted
+              })
+            }else{
+              next(new Errorhandler("sorry your time has been expired",404))
+            }
+
+})
