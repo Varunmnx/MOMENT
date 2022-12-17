@@ -56,13 +56,16 @@ export const loginUser = asyncErrorhandler(async(req, res,next) => {
 })
 
 export const isAuthenticateduser =asyncErrorhandler(async(req,res,next)=>{
+    // jwt token
     let {token} = req.cookies
     if(!token){
       return next(new Errorhandler("please login to access the page",401))
     
     }
-    const decodedData=jwt.verify(token,process.env.JWT_SECRET)
-
+    // id is the key used in jwt authentication
+    const decodedData=jwt.verify(token,process.env.JWT_SECRET)  //gives user id
+    
+    //user session info storing in user in client
     req.user = await prisma.user.findFirst({
       where:{
         id : decodedData.id
@@ -176,5 +179,89 @@ export const resetPassword = asyncErrorhandler(async(req,res,next) =>{
             }else{
               next(new Errorhandler("sorry your time has been expired",404))
             }
+
+})
+
+// current user and admin can see user details
+export const userDetails=asyncErrorhandler(async(req,res,next)=>{
+          //user identifier to find the user in user db
+          let {id} = req.user
+          // fetching user with id  that we want details about
+          let currentUser = prisma.user.findUnique(
+                                                      {
+                                                        where: {
+                                                          id:id
+                                                        }
+                                                      }
+                                                    )
+          // if user not found return error
+          if(!currentUser){
+            next(new Errorhandler("user not found ",401))
+          }
+          // if user found then send success
+          res.status(200).json({
+            user:currentUser,
+            status:"success"
+          })
+})
+
+
+//delete useraccount by user
+
+export const deleteUser =asyncErrorhandler(async(req,res,next)=>{
+   let {id} = req.user
+   let deleted = await prisma.user.delete({
+                                              where:{
+                                                id:id
+                                              }
+                                            })
+  if(!deleted)next(new Errorhandler("user cannot be deleted no user exist in db",404))
+  res.status(201).json({
+    status:"success",
+    deleted :deleted
+  })
+})
+
+
+
+//update current user 
+
+export const updateCurrentUser = asyncErrorhandler(async(req,res,next)=>{
+  
+  let { id , name , avatar , email } = req.user
+  let current = await prisma.user.findUnique(
+                                                  {
+                                                    where:{
+                                                      id:id
+                                                    }
+                                                  }
+                                                )
+
+  if(!current){
+    next(new Errorhandler("some error occured user not in db",401))
+  }
+
+  //if user donot wish to update his name and attributes then use the default one
+  let updatedName = req.body.name  ?  req.body.name : name 
+  let updatedAvatar = req.body.avatar ? req.body.name : avatar
+  let updatedEmail = req.body.email ? req.body.password : email 
+  
+  // udpate users with the new values if there is or fix the old one
+  let updateduser = await prisma.user.update({
+                                                where:{
+                                                  id:id
+                                                },
+                                                data:{  
+                                                  name: updatedName ,       
+                                                  avatar:updatedAvatar ,                      
+                                                  email:updatedEmail ,          
+
+                                                }
+                                              })
+
+  res.status(201).json({
+    status:"success",
+    user: updateduser
+  })
 
 })
