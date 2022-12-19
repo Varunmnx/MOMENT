@@ -26,6 +26,11 @@ model Products{
   createdat DateTime @default(now())
 }
 
+type Reviews{
+   name String @default("")
+   rating Int @default(0)
+   comment String
+}
 type Creator{
   type String
   ref String @default("user")
@@ -36,11 +41,6 @@ type Images{
   url String  @default("")
 }
 
-type Reviews{
-   name String @default("")
-   rating Int @default(0)
-   comment String
-}
 
 type UserAvatar {
   public_id String @default("")

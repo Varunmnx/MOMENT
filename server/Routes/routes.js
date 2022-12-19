@@ -23,6 +23,6 @@ router.route("/products/:id").get(isAuthenticateduser,productDetails).put(isAuth
 router.get("/user/all",isAuthenticateduser,isuserAdmin("admin"),listallUsers)
 router.route("/products/all").get(isAuthenticateduser,isuserAdmin("admin"),findAllProduct)
 router.post("/products/new",isAuthenticateduser,isuserAdmin("admin"),createnewProduct)
-router.delete("/user/all/:id",isAuthenticateduser,isuserAdmin("admin"),) // need to add functionality
-router.put("/user/all/:id",isAuthenticateduser,isuserAdmin("admin"))
+router.route("/user/all/:id").delete(isAuthenticateduser,isuserAdmin("admin")).put(isAuthenticateduser,isuserAdmin("admin")) // need to add functionality
+
 export default router;
