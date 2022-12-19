@@ -14,7 +14,7 @@ export class Apifeatures {
             } else if(!copyqry.keyword || !copyqry.category){
                         this.query = await prisma.products.findMany();
             }
-
+            console.log("filter runned____")
   //pagination
             if (copyqry.page ) {
     

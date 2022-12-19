@@ -83,8 +83,7 @@ export const isuserAdmin=(...roles)=>{
 
   return (req,res,next)=>{
     if(!roles.includes(req.user.role)){
-  
-          next( new Errorhandler(`Role ${req.user.roles} is not authorized to make changes`,201))
+          next( new Errorhandler(`Role ${req.user.role} is not authorized to make changes`,201))
     }
     next()
   }
@@ -262,6 +261,63 @@ export const updateCurrentUser = asyncErrorhandler(async(req,res,next)=>{
   res.status(201).json({
     status:"success",
     user: updateduser
+  })
+
+})
+
+
+export const deleteUserAsSuperUser =asyncErrorhandler(async(req,res,next)=>{
+ let {id} = req.params
+ let deleted = await prisma.user.delete({
+                              where:{
+                                id:id
+                              }
+                            })
+  if(!deleted)next(new Errorhandler("User not found or something went wrong",404))
+
+  res.status(201).json({
+    status:"success",
+    deleted
+  })
+})
+
+export const detailedUser =asyncErrorhandler(async(req,res,next)=>{
+  let {id} = req.params
+  let currentuser = await prisma.user.findFirst({
+    where:{
+      id
+    }
+  })
+  
+  res.status(200).json({
+    user:currentuser,
+    status:"success"
+  })
+
+})
+
+
+export const editExistingUser = asyncErrorhandler(async(req,res,next)=>{
+  let {id} = req.params
+  let currentuser = await prisma.user.findFirst({where:{
+    id
+  }})
+  let name = req.body.name ? req.body.name : currentuser.name
+  let role = req.body.role ? req.body.role : currentuser.role 
+
+  let updateduser
+  if( name||role ) {
+  updateduser= await prisma.user.update({
+                   where:{
+                           id  },
+                   data:{
+                          name,
+                          role  } } )}
+                      
+  if(!updateduser)next(new Errorhandler("something went wrong or this user donot exist ",401))
+  res.status(201).json({
+    user:updateduser,
+    status:"success"
   })
 
 })

@@ -26,26 +26,22 @@ model Products{
   createdat DateTime @default(now())
 }
 
-type Reviews{
-   name String @default("")
-   rating Int @default(0)
-   comment String
+//related with products
+type Images{
+  public_id String @default("")
+  url String  @default("")
 }
 type Creator{
   type String
   ref String @default("user")
 }
 
-type Images{
-  public_id String @default("")
-  url String  @default("")
+type Reviews{
+   name String @default("")
+   rating Int @default(0)
+   comment String
 }
 
-
-type UserAvatar {
-  public_id String @default("")
-  url       String @default("https://avatars.dicebear.com/api/croodles-neutral/sad.svg")
-}
 
 model User {
   id                  String     @id @default(auto()) @map("_id") @db.ObjectId
@@ -56,4 +52,10 @@ model User {
   resetPasswordExpire String @default("")
   resetPasswordToken  String @default("") 
   role                String @default("user")
+}
+
+//related with User model 
+type UserAvatar {
+  public_id String @default("")
+  url       String @default("https://avatars.dicebear.com/api/croodles-neutral/sad.svg")
 }

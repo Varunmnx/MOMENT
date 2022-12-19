@@ -1,6 +1,6 @@
 import express  from "express";
 import {findAllProduct,productDetails, updateproduct ,createnewProduct, deleteProduct} from "../controllers/controller.js"
-import {signupUser,loginUser,isAuthenticateduser,logout,isuserAdmin,listallUsers,forgotpassword ,resetPassword ,userDetails,deleteUser, updateCurrentUser} from "../controllers/auth.js"
+import {signupUser,loginUser,isAuthenticateduser,logout,isuserAdmin,listallUsers,forgotpassword ,resetPassword ,userDetails,deleteUser, updateCurrentUser , detailedUser ,editExistingUser} from "../controllers/auth.js"
 
 let router = express.Router()
 //user login and register
@@ -16,13 +16,16 @@ router.put("/me/profile/update",isAuthenticateduser,updateCurrentUser)
 router.delete("/me/profile/deleteaccount",isAuthenticateduser,deleteUser)
 
 //user rating and comment section
-router.route("/products/:id").get(isAuthenticateduser,productDetails).put(isAuthenticateduser,updateproduct).delete(isAuthenticateduser,isuserAdmin("admin"),deleteProduct)
+router.route("/product/:id").get(isAuthenticateduser,productDetails).put(isAuthenticateduser,updateproduct).delete(isAuthenticateduser,isuserAdmin("admin"),deleteProduct)
 
 
 // admin routes for user crud and product crud
 router.get("/user/all",isAuthenticateduser,isuserAdmin("admin"),listallUsers)
-router.route("/products/all").get(isAuthenticateduser,isuserAdmin("admin"),findAllProduct)
+router.route("/products/all").get(findAllProduct)
+
 router.post("/products/new",isAuthenticateduser,isuserAdmin("admin"),createnewProduct)
-router.route("/user/all/:id").delete(isAuthenticateduser,isuserAdmin("admin")).put(isAuthenticateduser,isuserAdmin("admin")) // need to add functionality
+router.route("/user/all/:id").delete(isAuthenticateduser,isuserAdmin("admin"),deleteProduct)
+                             .get(isAuthenticateduser,isuserAdmin("admin"),detailedUser)
+                             .put(isAuthenticateduser,isuserAdmin("admin"),editExistingUser) // need to add functionality
 
 export default router;
