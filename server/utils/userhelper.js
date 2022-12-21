@@ -20,7 +20,6 @@ export async function userCreator(name,email,password,res){
           url:`https://avatars.dicebear.com/api/croodles/${shuffledArray[3]+shuffledArray[8]+shuffledArray[1]}.svg`
         }
       }})
-
       let token = handleJWTSIGN(newuser.id)
       let options ={
         expires: new Date( Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 *60 ),

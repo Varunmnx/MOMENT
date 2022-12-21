@@ -23,6 +23,31 @@ app.use("/", router);
 app.use(errorHandlerMiddleWare)
 
 
+
+// async function createComment(){
+ 
+//  let oneuser = await prisma.user.findFirst({
+//     where:{
+//         id :"63943ed4c6564b65951db059"
+//     },
+//  })
+ 
+//  let allusers = await prisma.user.findFirst({
+//     where:{
+//         id:oneuser.id
+//     },
+//     include:{
+//         shoppingCart:true
+//     }
+//  })
+
+
+//  console.log(allusers)
+// }
+
+// createComment()
+
+
 app.listen(PORT,()=>console.log(`SERVER RUNNING ON ${PORT} `))
 //edge case
 process.on("unhandledRejection",(err)=>{
