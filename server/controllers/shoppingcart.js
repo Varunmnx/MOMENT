@@ -6,13 +6,14 @@ import { response } from "express";
 
 export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
     console.log("_____running____Addto___cart____")
-    let {id} = req.user
+    let cartId = req.user.id
     let { name , description , price , rating , url , public_id ,itemId } = req.body
     
     //check if a product with itmeId exist in the cart already
     let existingIteminCart = await prisma.shoppingCart.findFirst({
                                                                         where:{
-                                                                            itemId
+                                                                            itemId,
+                                                                            cartId
                                                                         }
                                                                     })
     console.log("___existingIteminCart______")
@@ -20,11 +21,11 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
     
     // if there is a product with that  itemId in cart then update its values
     if(existingIteminCart){
-                    // updating cart with itemId
+                    // updating cart with itemId cannot update using 2 ids at the same time
                     let singleprice = existingIteminCart.price / existingIteminCart.quantity
                     let updatedCartItem =  await prisma.shoppingCart.update({
                                                                                     where:{
-                                                                                        itemId:existingIteminCart.itemId
+                                                                                        id:existingIteminCart.id
                                                                                     },
                                                                                     data:{
                                                                                         quantity:existingIteminCart.quantity + 1 ,
@@ -45,7 +46,7 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
     else{
                         let currentItem = await prisma.shoppingCart.create({
                                     data:{
-                                        cartId:id,
+                                        cartId,
                                         itemId,
                                         quantity:1,
                                         name ,
@@ -79,22 +80,33 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
 
 
 export const deletecartItem =asyncErrorhandler(async(req,res,next)=>{
-        let {id} = req.user
-        let itemid = req.body.id
-        let deletedItem = await prisma.shoppingCart.delete({
-            where:{
-                id :itemid,
-                cartId :id,   // this is the user reference id used in one to many relationship
-            },
-            include:{
-                user:true
-            }
+        let cartId = req.user.id
+        let itemId = req.body.itemId
+// 
+        let currentItem = await prisma.shoppingCart.findFirst({
+                   where:{
+                     OR:[
+                        {
+                            cartId,
+                            itemId
+                        }
+                     ]
+                   }
         })
-        console.log("___one__item__Deleted___")
-        console.log(deletedItem)
 
-        res.status(200).json({
-                                    item
-                                })
+         // performing deletion using id of that shoping cart
+    await prisma.shoppingCart.delete({
+        where:{
+            id: currentItem.id
+        }
+       })
+
+       let fullcart = await prisma.shoppingCart.findMany({
+        where:{
+            cartId
+        },
+       })
+       console.log("_____full____cart______")
+       console.log(fullcart)
 
 })
