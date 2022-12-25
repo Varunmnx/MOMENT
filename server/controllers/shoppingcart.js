@@ -4,8 +4,11 @@ const prisma = new PrismaClient();
 import { asyncErrorhandler } from "../middlewares/asyncErrorhandler.js";
 import { response } from "express";
 
+
+
+// adding to cart and incrementing quantity
 export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
-    console.log("_____running____Addto___cart____")
+    // console.log("_____running____Addto___cart____")
     let cartId = req.user.id
     let { name , description , price , rating , url , public_id ,itemId } = req.body
     
@@ -23,7 +26,7 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
     if(existingIteminCart){
                     // updating cart with itemId cannot update using 2 ids at the same time
                     let singleprice = existingIteminCart.price / existingIteminCart.quantity
-                    let updatedCartItem =  await prisma.shoppingCart.update({
+                     await prisma.shoppingCart.update({
                                                                                     where:{
                                                                                         id:existingIteminCart.id
                                                                                     },
@@ -32,12 +35,14 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
                                                                                         price:singleprice *( existingIteminCart.quantity + 1 )
                                                                                     }
                                                                                 })
-                    console.log("___existingcartitem____updated___")
-                    console.log(updatedCartItem)
-
+                    // console.log("___existingcartitem____updated___")
+                    // console.log(updatedCartItem)
+                    let cartStatus = await fetchCart(cartId)
+                    console.log("____________________current___cart_____________")
+                    console.log(cartStatus)
                     res.status(200).json({
                         status:"success",
-                        updatedCartItem,
+                        cart :cartStatus ,
                         existing:"true"
                     })
     
@@ -63,11 +68,11 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
                                     }
                                 })  
                                 
-                        console.log("###################################")
-                        console.log("______created____new_____item____")
-                        console.log("###################################")
-                        console.log("________current___Item_______")
-                        console.log(currentItem)
+                        // console.log("###################################")
+                        // console.log("______created____new_____item____")
+                        // console.log("###################################")
+                        // console.log("________current___Item_______")
+                        // console.log(currentItem)
                         res.status(200).json({
                             success:"true",
                             item:currentItem
@@ -78,35 +83,129 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
 
 })
 
-
+// removing the cart item 
 export const deletecartItem =asyncErrorhandler(async(req,res,next)=>{
         let cartId = req.user.id
         let itemId = req.body.itemId
-// 
+
+        console.log("____________Deleting________________")
         let currentItem = await prisma.shoppingCart.findFirst({
                    where:{
-                     OR:[
-                        {
                             cartId,
                             itemId
-                        }
-                     ]
+                    
                    }
         })
-
+   
+    if(!currentItem)next(new Errorhandler("Item donot exist",404))    
          // performing deletion using id of that shoping cart
     await prisma.shoppingCart.delete({
         where:{
             id: currentItem.id
         }
        })
-
-       let fullcart = await prisma.shoppingCart.findMany({
-        where:{
-            cartId
-        },
-       })
-       console.log("_____full____cart______")
-       console.log(fullcart)
+     let currentCart = await fetchCart(cartId)  
+     res.status(200).json({
+        cart:currentCart
+     })
 
 })
+
+
+export const decreaseQuantity =asyncErrorhandler(async(req,res,next)=>{
+    let cartId = req.user.id 
+    let {itemId} = req.body
+    // finding cart with item to extract id of the unique cart
+    // console.log(cartId)
+    // console.log(itemId)
+    let cartItem = await prisma.shoppingCart.findFirst({
+                                                            where:{
+                                                    
+                                                                    cartId,
+                                                                    itemId
+                                                                }
+                        
+                                                    })
+
+
+    // console.log("######cart___Item______________________")
+    // console.log(cartItem)
+    if(cartItem.quantity >1){
+       console.log("item is present in the cart ")
+       const unitPrice = cartItem.price / cartItem.quantity  // calculating per unit price of item
+       await prisma.shoppingCart.update({
+                                                            where:{
+                                                                id:cartItem.id
+                                                            },
+                                                            data:{
+                                                                quantity: cartItem.quantity - 1 ,
+                                                                price: cartItem.price - unitPrice
+                                                            }
+                                                            
+                                                        })
+        let cartStatus = await fetchCart(cartId)
+        res.status(200).json({
+            state:"success",
+            updatedCart : cartStatus
+        })
+    }      else if(cartItem?.quantity ===1){    
+                        const unitPrice = cartItem.price / cartItem.quantity  // calculating per unit price of item
+                        await prisma.shoppingCart.delete({
+                                                                            where:{
+                                                                                id:cartItem.id
+                                                                            }
+                                                                            
+                                                                        })
+                        let cartStatus = await fetchCart(cartId)
+                        res.status(200).json({
+                            state:"success",
+                            updatedCart :cartStatus
+                        })
+
+    }   else{
+        next(new Errorhandler("something went wrong",404))
+    }                                                
+})
+
+
+
+export const clearCart = asyncErrorhandler(async(req,res,next)=>{
+    let cartId = req.user.id 
+     
+    let emptyCart = await prisma.shoppingCart.deleteMany({
+                                                            where:{
+                                                                        cartId
+                                                            }
+                                                        })
+    console.log("________card_____emptied___________")
+    console.log(emptyCart)
+
+    let cartStatus = await fetchCart(cartId)               
+
+    if(emptyCart){
+        
+        res.status(200).json({
+            state:"success",
+            cart : cartStatus
+        })
+
+    } else{
+      
+        next(new Errorhandler("something went wrong check your cart is empty",404))
+    
+    }
+
+})
+
+
+
+export async function fetchCart(cartId){
+ 
+  let currentCartState = await prisma.shoppingCart.findMany({
+    where:{
+        cartId
+    }
+  })
+  return currentCartState
+}
+

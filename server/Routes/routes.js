@@ -1,7 +1,7 @@
 import express  from "express";
 import {findAllProduct,productDetails, updateproduct ,createnewProduct, deleteProduct} from "../controllers/controller.js"
 import {signupUser,loginUser,isAuthenticateduser,logout,isuserAdmin,listallUsers,forgotpassword ,resetPassword ,userDetails,deleteUser, updateCurrentUser , detailedUser ,editExistingUser} from "../controllers/auth.js"
-import {addtoCart,deletecartItem} from "../controllers/shoppingcart.js"
+import {addtoCart,deletecartItem,decreaseQuantity,clearCart} from "../controllers/shoppingcart.js"
 
 
 let router = express.Router()
@@ -31,9 +31,13 @@ router.route("/user/all/:id").delete(isAuthenticateduser,isuserAdmin("admin"),de
                              .put(isAuthenticateduser,isuserAdmin("admin"),editExistingUser) // need to add functionality
 
 //routes to add items to cart
-router.post("/cart",isAuthenticateduser,addtoCart)  // adding to cart and increasing the quantity
-// router.put("/cart",isAuthenticateduser,removeItem) // removing on e item from cart at a time
-router.delete("/cart",isAuthenticateduser,deletecartItem) // delete one item entirely
+router.route("/cart").post(isAuthenticateduser,addtoCart)
+                     .delete(isAuthenticateduser,deletecartItem)
+                     .put(isAuthenticateduser,decreaseQuantity)
+
+router.route("/cart/empty").delete(isAuthenticateduser,clearCart)
+ // removing on e item from cart at a time // delete one item entirely
+// adding to cart and increasing the quantity
 
 
 export default router;
