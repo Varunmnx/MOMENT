@@ -25,6 +25,9 @@ export const productDetails = asyncErrorhandler(async (req, res, next) => {
       where: {
         id: id,
       },
+      include:{
+        reviews:true
+      }
     });
     res.status(201).json(product);
   } catch (err) {
@@ -34,6 +37,7 @@ export const productDetails = asyncErrorhandler(async (req, res, next) => {
 
 
 export const updateproduct =asyncErrorhandler( async (req, res, next) => {
+  console.log("_____updating_________")
   const { id } = req.params;
   const {
     name,
@@ -42,7 +46,7 @@ export const updateproduct =asyncErrorhandler( async (req, res, next) => {
     rating,
     images,
     stock,
-    numberofreviews,
+
     category,
   } = req.body;
 
@@ -52,9 +56,11 @@ export const updateproduct =asyncErrorhandler( async (req, res, next) => {
         id,
       },
     });
-    if (product.length == 0) {
+
+    if (!product) {
       next(new Errorhandler("no such product ",201))
     } else {
+      console.log("_________updating___product________")
       let updatedproduct = await prisma.products.update({
         where: {
           id,
@@ -66,7 +72,6 @@ export const updateproduct =asyncErrorhandler( async (req, res, next) => {
           rating,
           images,
           stock,
-          numberofreviews,
           category,
           user : {
             type: req.user.id,
@@ -74,6 +79,7 @@ export const updateproduct =asyncErrorhandler( async (req, res, next) => {
           
         },
       });
+
       res.status(201).json({
         isaproduct: true,
         updatedproduct,
@@ -95,6 +101,21 @@ export const createnewProduct = asyncErrorhandler(async (req, res, next) => {
     numberofreviews,
     category,
   } = req.body;
+  
+  // check if same product exists
+  let existingproduct = await prisma.products.findFirst({ where:{
+                                                                   OR:
+                                                                       [
+                                                                        {
+                                                                          name:name,
+                                                                          price:price,
+                                                                          description:description,
+                                                                          category:category
+                                                                        }
+                                                                       ]
+                                                                  
+  }})
+  if(existingproduct)next(new Errorhandler("this product exists already add a new one or contact us",404))
 
 
     let newproduct = await prisma.products.create({

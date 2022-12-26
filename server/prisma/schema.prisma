@@ -22,9 +22,9 @@ model Products{
   category String
   user Creator?
   stock Int @default(1)
-  numberofreviews Reviews[]
+  reviews Reviews[] // line 40
   createdat DateTime @default(now())
-  cart   ShoppingCart?
+  cart   ShoppingCart[] 
 }
 
 //related with products
@@ -37,10 +37,18 @@ type Creator{
   ref String @default("user")
 }
 
-type Reviews{
+
+
+// reviews for each product ( one to many rel ) and each review with one user who can post many reviews ( many to one )
+model Reviews{
+   id String @id @default(auto()) @map("_id") @db.ObjectId
    name String @default("")
    rating Int @default(0)
    comment String
+   productId String @db.ObjectId  // related to one product
+   product Products @relation(fields: [productId],references: [id])
+   authorId String @db.ObjectId   // related to one user
+   user User @relation(fields: [authorId],references: [id])
 }
 
 
@@ -53,7 +61,8 @@ model User {
   resetPasswordExpire String @default("")
   resetPasswordToken  String @default("") 
   role                String @default("user")
-  shoppingCart       ShoppingCart[]
+  shoppingCart        ShoppingCart[]  // one to  many rel
+  comments            Reviews[] //one to many rel
 }
 
 // one user can have many cart items ie one user with many items related with shopping cart
@@ -61,14 +70,14 @@ model ShoppingCart{
     id                  String     @id @default(auto()) @map("_id") @db.ObjectId
     name                String
     itemId              String     @db.ObjectId @unique
-    product             Products      @relation(fields: [itemId],references: [id])       //products id should be used here to identify specific product
+    product             Products   @relation(fields: [itemId],references: [id])       //products id should be used here to identify specific product
     quantity            Int        @default(0)       // increment if product with this itemid exist
     price               Float              // increment if product with this itemid exist
     description         String
     rating              Int 
-    cartId              String           @db.ObjectId
-    image               Images[]  //reused from products
-    user                User @relation(fields: [cartId],references: [id]) 
+    cartId              String     @db.ObjectId
+    image               Images[]   //reused from products
+    user                User       @relation(fields: [cartId],references: [id]) 
 }
 
 
@@ -80,4 +89,3 @@ type UserAvatar {
   public_id String @default("")
   url       String @default("https://avatars.dicebear.com/api/croodles-neutral/sad.svg")
 }
-

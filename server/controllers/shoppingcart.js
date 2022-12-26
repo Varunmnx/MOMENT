@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Errorhandler } from "../utils/errorhandler.js";
 const prisma = new PrismaClient();
 import { asyncErrorhandler } from "../middlewares/asyncErrorhandler.js";
-import { response } from "express";
+
 
 
 
@@ -10,8 +10,10 @@ import { response } from "express";
 export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
     // console.log("_____running____Addto___cart____")
     let cartId = req.user.id
-    let { name , description , price , rating , url , public_id ,itemId } = req.body
-    
+    let { itemId } = req.body
+    let product = await fetchProduct(itemId)
+    if(!product)next(new Errorhandler("This item is not sold by any one kindly contact us",404)) 
+
     //check if a product with itmeId exist in the cart already
     let existingIteminCart = await prisma.shoppingCart.findFirst({
                                                                         where:{
@@ -51,16 +53,16 @@ export const addtoCart=asyncErrorhandler(async(req,res,next)=>{
     else{
                         let currentItem = await prisma.shoppingCart.create({
                                     data:{
-                                        cartId,
+                                        cartId , // user id
                                         itemId,
                                         quantity:1,
-                                        name ,
-                                        description,
-                                        price,
-                                        rating,
+                                        name:product.name ,
+                                        description:product.description,
+                                        price:product.price,
+                                        rating:product.rating,
                                         image:{
-                                            url,
-                                            public_id
+                                            url:product.images.url,
+                                            public_id:product.images.public_id
                                         }
                                     },
                                     include:{
@@ -171,7 +173,7 @@ export const decreaseQuantity =asyncErrorhandler(async(req,res,next)=>{
 
 export const clearCart = asyncErrorhandler(async(req,res,next)=>{
     let cartId = req.user.id 
-     
+    // deleting all the items in the cart associated with one user 
     let emptyCart = await prisma.shoppingCart.deleteMany({
                                                             where:{
                                                                         cartId
@@ -198,7 +200,7 @@ export const clearCart = asyncErrorhandler(async(req,res,next)=>{
 })
 
 
-
+// fetching updated cart
 export async function fetchCart(cartId){
  
   let currentCartState = await prisma.shoppingCart.findMany({
@@ -209,3 +211,16 @@ export async function fetchCart(cartId){
   return currentCartState
 }
 
+// fetching product details
+
+export async function fetchProduct(id){
+
+    let product = await prisma.products.findFirst({
+                                                    where:{
+                                                        id
+                                                    }
+                                                })
+
+// returning product details                                               
+ return product
+    }

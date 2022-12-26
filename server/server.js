@@ -47,6 +47,16 @@ app.use(errorHandlerMiddleWare)
 
 // createComment()
 
+// let user =await prisma.products.findFirst({
+//     where:{
+//         id:"63a9888310106fa85b6dbc1f"
+//     },
+//     include:{
+//         cart:true
+//     }
+// })
+// console.log("______user___with___current____Cart__________")
+// console.log(user)
 
 app.listen(PORT,()=>console.log(`SERVER RUNNING ON ${PORT} `))
 //edge case

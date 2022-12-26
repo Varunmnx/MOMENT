@@ -2,7 +2,7 @@ import express  from "express";
 import {findAllProduct,productDetails, updateproduct ,createnewProduct, deleteProduct} from "../controllers/controller.js"
 import {signupUser,loginUser,isAuthenticateduser,logout,isuserAdmin,listallUsers,forgotpassword ,resetPassword ,userDetails,deleteUser, updateCurrentUser , detailedUser ,editExistingUser} from "../controllers/auth.js"
 import {addtoCart,deletecartItem,decreaseQuantity,clearCart} from "../controllers/shoppingcart.js"
-
+import {deleteReview,updateReview,addReview} from "../controllers/reviews.js"
 
 let router = express.Router()
 //user login and register
@@ -18,7 +18,9 @@ router.put("/me/profile/update",isAuthenticateduser,updateCurrentUser)
 router.delete("/me/profile/deleteaccount",isAuthenticateduser,deleteUser)
 
 //user rating and comment section
-router.route("/product/:id").get(isAuthenticateduser,productDetails).put(isAuthenticateduser,updateproduct).delete(isAuthenticateduser,isuserAdmin("admin"),deleteProduct)
+router.route("/product/:id").get(isAuthenticateduser,productDetails)
+                            .put(isAuthenticateduser,updateproduct)
+                            .delete(isAuthenticateduser,isuserAdmin("admin"),deleteProduct)
 
 
 // admin routes for user crud and product crud
@@ -38,6 +40,8 @@ router.route("/cart").post(isAuthenticateduser,addtoCart)
 router.route("/cart/empty").delete(isAuthenticateduser,clearCart)
  // removing on e item from cart at a time // delete one item entirely
 // adding to cart and increasing the quantity
-
+router.route("/comments/new").post(isAuthenticateduser,addReview)
+                             .put(isAuthenticateduser,updateReview)
+                             .delete(isAuthenticateduser,deleteReview)
 
 export default router;
