@@ -16,6 +16,7 @@ export const addReview = asyncErrorhandler(async(req,res,next)=>{
                                                             }
                                                         })
 
+   // if user has already made a review  then donot update products rating                                                    
    if(existingReview){
     console.log("_____existing___Review_____")
     console.log(existingReview)
@@ -27,14 +28,14 @@ export const addReview = asyncErrorhandler(async(req,res,next)=>{
             authorId,
             productId
         }
-})
+    })
 
    }
 
   
 
    let allReviews = await fetchallReviews(productId)
-   console.log(allReviews)
+//    console.log(allReviews)
    let existingproduct = await prisma.products.findFirst({
                                         where:{
                                             id:productId
@@ -45,6 +46,7 @@ export const addReview = asyncErrorhandler(async(req,res,next)=>{
             console.log("____rating______")
             console.log(updatedRating)
             updatedRating = Math.ceil(updatedRating)
+    // new review so create a new one and alter the rating of products        
             await prisma.reviews.create({
                 data:{
                     name,
@@ -65,7 +67,7 @@ export const addReview = asyncErrorhandler(async(req,res,next)=>{
                                                     reviews:true
                                                 }
                                             })
-            console.log(updatedReviews)
+            // console.log(updatedReviews)
             allReviews = await fetchallReviews(updatedReviews.id)    
              
             res.status(200).json({
@@ -110,6 +112,14 @@ export const deleteReview = asyncErrorhandler(async(req,res,next)=>{
     
 })
 
+
+export const getallReviews = asyncErrorhandler(async(req,res,next)=>{
+    let allreviews = await fetchallReviews(req.productId)
+
+    res.status(200).json({
+        allreviews
+    })
+})
 
 
 
