@@ -75,9 +75,10 @@ model ShoppingCart{
     price               Float              // increment if product with this itemid exist
     description         String
     rating              Int 
-    cartId              String     @db.ObjectId
+    cartId              String     @db.ObjectId  @unique
     image               Images[]   //reused from products
     user                User       @relation(fields: [cartId],references: [id]) 
+    orderDetails        OrderDetails[]
 }
 
 
@@ -88,4 +89,16 @@ model ShoppingCart{
 type UserAvatar {
   public_id String @default("")
   url       String @default("https://avatars.dicebear.com/api/croodles-neutral/sad.svg")
+}
+
+// for taking user order shippment address and calculating the amount to be paid
+model OrderDetails{
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  phoneNumber         Int
+  country             String
+  state               String
+  pincode             Int
+  areaDetails         String
+  orderId             String     @db.ObjectId   @unique
+  items               ShoppingCart   @relation(fields: [orderId],references: [cartId])
 }

@@ -1,7 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import router from "./Routes/routes.js";
+import routerall from "./Routes/routes.js";
+import cartRoutes from "./Routes/cartRoutes.js"  // cart functionalities
+import profileRoutes  from "./Routes/profileRoutes.js" // personal details editing 
+import shipmentRoutes from "./Routes/shipmentRoute.js" // shipment details adding and checkout handling
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -18,7 +21,10 @@ app.use(bodyParser.json({limit:"30mb",extended:true}))
 app.use(bodyParser.urlencoded({limit:"30mb",extended:true}))
 
 
-app.use("/", router);
+app.use("/", routerall);
+app.use("/cart",cartRoutes)
+app.use("/me",profileRoutes)
+app.use("/checkout",shipmentRoutes)
 //next with error binded to error class with be consumed by this function
 app.use(errorHandlerMiddleWare)
 
