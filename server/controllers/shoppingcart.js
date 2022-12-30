@@ -211,6 +211,18 @@ export const clearCart = asyncErrorhandler(async (req, res, next) => {
   }
 });
 
+export const  getcartState = asyncErrorhandler(async (req,res,next)=>{
+
+  let cart = await fetchCart(req.user.id)
+
+  res.status(200).json({
+    status:"success",
+   cart
+  })
+})
+
+
+
 // fetching updated cart
 export async function fetchCart(cartId) {
   let currentCartState = await prisma.shoppingCart.findMany({

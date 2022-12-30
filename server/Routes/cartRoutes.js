@@ -1,7 +1,7 @@
 
 import express  from "express";
 import {isAuthenticateduser} from "../controllers/auth.js"
-import {addtoCart,deletecartItem,decreaseQuantity,clearCart} from "../controllers/shoppingcart.js"
+import {addtoCart,deletecartItem,decreaseQuantity,clearCart,getcartState,} from "../controllers/shoppingcart.js"
 
 
 let router = express.Router()
@@ -11,6 +11,7 @@ let router = express.Router()
 router.route("/").post(isAuthenticateduser,addtoCart)
                  .delete(isAuthenticateduser,deletecartItem)
                  .put(isAuthenticateduser,decreaseQuantity)
+                 .get(isAuthenticateduser,getcartState)
 
 router.route("/empty").delete(isAuthenticateduser,clearCart)
  // removing on e item from cart at a time // delete one item entirely

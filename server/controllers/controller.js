@@ -98,7 +98,6 @@ export const createnewProduct = asyncErrorhandler(async (req, res, next) => {
     rating,
     images,
     stock,
-    numberofreviews,
     category,
   } = req.body;
   
@@ -119,20 +118,18 @@ export const createnewProduct = asyncErrorhandler(async (req, res, next) => {
 
 
     let newproduct = await prisma.products.create({
-      data: {
-        name,
-        description,
-        price,
-        rating,
-        images,
-        stock,
-        numberofreviews,
-        category,
-        user : {
-          type: req.user.id,
-        }
-      },
-    });
+                                                      data: {
+                                                              name,
+                                                              description,
+                                                              price,
+                                                              rating,
+                                                              images,
+                                                              stock,
+                                                              category,
+                                                              user : {
+                                                                type: req.user.id,
+                                                              }
+                                                            }, });
     if (newproduct) {
       res.status(200).json(newproduct);
     }  } )

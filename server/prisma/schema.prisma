@@ -78,7 +78,6 @@ model ShoppingCart{
     cartId              String     @db.ObjectId  @unique
     image               Images[]   //reused from products
     user                User       @relation(fields: [cartId],references: [id]) 
-    orderDetails        OrderDetails[]
 }
 
 
@@ -100,5 +99,14 @@ model OrderDetails{
   pincode             Int
   areaDetails         String
   orderId             String     @db.ObjectId   @unique
-  items               ShoppingCart   @relation(fields: [orderId],references: [cartId])
+  orderItems          OrderedItems[]
+  status              String @default("processing")
+}
+
+
+type  OrderedItems{
+  name String
+  itemId String
+  price   Int
+  quantity  Int
 }
