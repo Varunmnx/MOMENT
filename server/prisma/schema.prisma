@@ -101,6 +101,9 @@ model OrderDetails{
   orderId             String     @db.ObjectId   @unique
   orderItems          OrderedItems[]
   status              String @default("processing")
+  total               Float  @default(0.0)
+  paymentMode         String  @default("online")
+  paymentStatus       String  @default("pending")
 }
 
 

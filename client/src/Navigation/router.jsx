@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom"
 import { AnimatePresence } from "framer-motion"
-import { Login } from "../Pages/login"
+import Login  from "../Pages/login"
 import { Signup } from "../Pages/signup"
 import Restricted from "../Pages/Restricted"
 import AuthChecker, { RestrictiontoLogin } from "./AuthChecker"

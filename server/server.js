@@ -16,7 +16,9 @@ const prisma = new PrismaClient()
 const PORT = process.env.PORT_NUMBER || 3000;
 const app = express();
 app.use(cookieParser())
-app.use(cors());
+app.use(cors({
+    origin:"*"
+}));
 app.use(bodyParser.json({limit:"30mb",extended:true}))
 app.use(bodyParser.urlencoded({limit:"30mb",extended:true}))
 

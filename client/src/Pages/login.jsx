@@ -3,27 +3,25 @@ import { useFormik } from "formik";
 import {basicSchema} from "../Schemas/FormSchemas"
 import Input  from "./Components/Input";
 import { useDispatch,useSelector } from "react-redux";
-import { loginUser } from "../store/auth";
+import { loginUser  } from "../store/auth";
 import { motion } from "framer-motion";
-import {useNavigate} from "react-router-dom"
-export const Login = () => {
+import { useNavigate } from "react-router-dom"
+import { memo } from "react";
+export default  function login () {
 
-  const {status,notaUser,currentUser} = useSelector(state=>state.auth)
-  // console.log(status)
-  // console.log(notaUser)
-  // console.log(currentUser)
+  const {status,notaUser,currentUser,loginStatus} = useSelector(state=>state.auth)
+  
   let nav = useNavigate()
   const dispatch = useDispatch()
+  console.log("_____login___status____")
+  console.log(loginStatus==="forgot")
+  const handleSubmit =async (values,actions)=>{
+    dispatch(loginUser(values))
   
-  const onSubmit = async (values,actions)=>{
-      console.log("submitted")
-      console.log(values)
-      dispatch(loginUser(formik.values))
-      await new Promise((resolve)=>setTimeout(resolve,1000))
-      actions.resetForm()
-
-  }
-
+    await new Promise((resolve)=>setTimeout(resolve,1000))
+     actions.resetForm()
+ }
+  console.log(currentUser)
   const formik = useFormik({
         initialValues: {
           email: "",
@@ -31,7 +29,7 @@ export const Login = () => {
           confirmPassword:""
         },
         validationSchema:basicSchema,
-        onSubmit:onSubmit
+        onSubmit :handleSubmit
   });
 
   const tempvar = {
@@ -55,7 +53,11 @@ export const Login = () => {
                 exit ="exit"
                 variants={tempvar}
     >
-      <p className={notaUser?"block text-red ":"hidden"}>oops seems like you are not a member please signup to use </p>
+
+      {
+        currentUser&&<img src={currentUser.profilepic} className="w-[100px] h-24 rounded-sm" />
+      }
+      <p className={loginStatus === "forgot" ? "block text-red ":"hidden"}>oops! seems like you forgot your password </p>
 
             <form className="w-[300px] flex-shrink-0" onSubmit={formik.handleSubmit}>
                   <label className={ `text-xl transition-all ${formik.touched.email&&formik.errors.email&&"text-red-700 "}`} >Email</label>
@@ -110,4 +112,6 @@ export const Login = () => {
     </motion.div>
    
   );
-};
+}
+
+

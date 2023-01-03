@@ -31,7 +31,7 @@ export const signupUser =asyncErrorhandler(async(req,res,next)=>{
 
 export const loginUser = asyncErrorhandler(async(req, res,next) => {
     const {email,password} = req.body
-
+  
     const existing =await prisma.user.findFirst({
         where: {
          email,
@@ -41,6 +41,7 @@ export const loginUser = asyncErrorhandler(async(req, res,next) => {
      
           if (existing&&await bcrypt.compare(password,existing.password) ){
                     await letuserlogin(existing,res)
+
             }
           
           else if(existing&&! await bcrypt.compare(password,existing.password)){

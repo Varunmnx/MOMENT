@@ -1,31 +1,43 @@
-import { createSlice} from "@reduxjs/toolkit";
+import { createSlice ,createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios"
+
+// helper functions to filter unwanted data from response 
+
+import { setUser,handleLoginErrorGlobal } from "./apiresponseparser/states";
+
+
 
 const authSlice = createSlice({
     name: "auth",
     initialState: {
-         status:false,
+         loginStatus:false,
          notaUser:false,
-         currentUser:{
-          name:"",
-          email:""
-         }
+         currentUser:null
     },
     reducers: {
+
       setCurrentuser(state,action){
-           const {data} = action.payload 
-           state.status = true
-           state.currentUser = data
+           const currentUserDetails = action.payload 
+           state.currentUser = currentUserDetails
+           state.loginStatus = true
            state.notaUser = false
       },
+    
       logOutUser(state,action){
              state.status = false
              state.notaUser = false
+            nsole.log("___running___logout___user___reducer____")
+             console.log(action.payload)
       },
+
       notAUser(state,action){
-           state.notaUser = true,
-           state.status = false
-        
+          // console.log("_____serving___not___a___User____")
+           state.notaUser = true
+           console.log(action.payload)
+           if(action.payload==="forgot"){
+             state.loginStatus ="forgot"
+           }
+           
       }
     },
   });
@@ -47,13 +59,21 @@ export function signUpUser(data){
 }
 
 
-export function loginUser(formData){
-  //thunk function
-   return async (dispatch,getState)=>{
-       let {data} =  await axios.post(import.meta.env.VITE_API_END_POINT+"/signin",{body:formData})
-       console.log(data)
-       if(data.status ==false){
-            dispatch(actions.notAUser())
-       }
-   }
-}
+export const loginUser = createAsyncThunk(
+     'login/logout',
+     async (userLoginDetails, {dispatch}) => {
+          console.log("_____making___login___api___Call")
+
+     let {   email , password } = userLoginDetails  // from login page
+     try{
+     let {data} = await axios.post(import.meta.env.VITE_API_END_POINT+"/user/login",{
+           email ,password  })
+     
+     let currentuser = setUser( data ) // filtering response to only extract necessary response
+     dispatch(actions.setCurrentuser(currentuser))}
+     catch(err){
+          let { response } = err
+          handleLoginErrorGlobal(response.data.error,dispatch)
+     }
+     }
+     );
