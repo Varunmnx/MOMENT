@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom"
 import { memo } from "react";
 export default  function login () {
-
+// ss
   const {status,notaUser,currentUser,loginStatus} = useSelector(state=>state.auth)
   
   let nav = useNavigate()
