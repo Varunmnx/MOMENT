@@ -11,4 +11,4 @@
 - [] setup redux store
 - [] create middleware functions
 - [] use redux for state management
-- [] Deploy the app in linode
+- [] deploy the app in linode
