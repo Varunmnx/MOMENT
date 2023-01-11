@@ -5,10 +5,11 @@
 - [x] connect with MONGODB cluster
 - [x] replaced mongoose with PRISMA ORM 
 - [x] connected PRISMA with MONGO
-- [] build backend
+- [x] build backend
 - [] comeup with frontend design
 - [] make frontend
 - [] setup redux store
-- [] create middleware functions
-- [] use redux for state management
+- [x] update file upload with cloudinary
+- [x] create middleware functions
+- [x] use redux for state management
 - [] Deploy the app in linode
