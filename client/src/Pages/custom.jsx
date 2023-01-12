@@ -1,7 +1,9 @@
 import React from 'react'
 
-export const Sorry = () => {
+const custom = () => {
   return (
-    <div>Sorry</div>
+    <div>custom</div>
   )
 }
+
+export default custom

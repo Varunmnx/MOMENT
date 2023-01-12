@@ -1,17 +1,27 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import routerall from "./Routes/routes.js";
+import commentRoutes from "./Routes/commentRoutes.js";
 import cartRoutes from "./Routes/cartRoutes.js"  // cart functionalities
 import profileRoutes  from "./Routes/profileRoutes.js" // personal details editing 
 import shipmentRoutes from "./Routes/shipmentRoute.js" // shipment details adding and checkout handling
+import productRoutes from "./Routes/productsRoutes.js"
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { PrismaClient } from '@prisma/client'
-
+import cloudinary from "cloudinary"
 import { errorHandlerMiddleWare } from "./middlewares/errormiddleware.js";
 const prisma = new PrismaClient()
+
+
+cloudinary.config({  
+    cloud_name:process.env.CLOUD_NAME,  
+    api_key: process.env.CLOUDE_API_KEY,  
+    api_secret:process.env.CLOUD_API_SECRET 
+}); 
+
+
 
 const PORT = process.env.PORT_NUMBER || 3000;
 const app = express();
@@ -23,10 +33,11 @@ app.use(bodyParser.json({limit:"30mb",extended:true}))
 app.use(bodyParser.urlencoded({limit:"30mb",extended:true}))
 
 
-app.use("/", routerall);
-app.use("/cart",cartRoutes)
-app.use("/me",profileRoutes)
-app.use("/checkout",shipmentRoutes)
+app.use("/api/cart",cartRoutes)
+app.use("/api/user",profileRoutes)
+app.use("/api/checkout",shipmentRoutes)
+app.use("/api/product",productRoutes)
+app.use("/api/comment",commentRoutes)
 //next with error binded to error class with be consumed by this function
 app.use(errorHandlerMiddleWare)
 

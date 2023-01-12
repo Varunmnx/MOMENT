@@ -1,10 +1,10 @@
 
 import express  from "express";
+let router = express.Router()
 import {isAuthenticateduser} from "../controllers/auth.js"
 import {addtoCart,deletecartItem,decreaseQuantity,clearCart,getcartState,} from "../controllers/shoppingcart.js"
 
 
-let router = express.Router()
 
 
 //routes to add items to cart
