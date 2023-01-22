@@ -13,7 +13,7 @@ import { PrismaClient } from '@prisma/client'
 import cloudinary from "cloudinary"
 import { errorHandlerMiddleWare } from "./middlewares/errormiddleware.js";
 const prisma = new PrismaClient()
-
+import fileUpload from "express-fileupload"
 
 cloudinary.config({  
     cloud_name:process.env.CLOUD_NAME,  
@@ -29,6 +29,10 @@ app.use(cookieParser())
 app.use(cors({
     origin:"*"
 }));
+app.use(fileUpload({   
+    useTempFiles: true,
+    tempFileDir: "/tmp/",}))
+
 app.use(bodyParser.json({limit:"30mb",extended:true}))
 app.use(bodyParser.urlencoded({limit:"30mb",extended:true}))
 
@@ -38,6 +42,7 @@ app.use("/api/user",profileRoutes)
 app.use("/api/checkout",shipmentRoutes)
 app.use("/api/product",productRoutes)
 app.use("/api/comment",commentRoutes)
+
 //next with error binded to error class with be consumed by this function
 app.use(errorHandlerMiddleWare)
 

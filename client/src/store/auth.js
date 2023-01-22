@@ -26,7 +26,7 @@ const authSlice = createSlice({
       logOutUser(state,action){
              state.status = false
              state.notaUser = false
-            nsole.log("___running___logout___user___reducer____")
+            console.log("___running___logout___user___reducer____")
              console.log(action.payload)
       },
 

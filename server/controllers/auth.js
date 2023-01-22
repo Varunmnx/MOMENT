@@ -7,7 +7,7 @@ import { userCreator,letuserlogin,appendResetTokenAndResetTokenExpire } from "..
 import jwt from "jsonwebtoken"
 import { sendEmail } from "../utils/emailHelper.js";
 import crypto from "crypto"
-
+import cloudinary from "cloudinary"
 
 export const signupUser =asyncErrorhandler(async(req,res,next)=>{
 
@@ -228,7 +228,20 @@ export const deleteUser =asyncErrorhandler(async(req,res,next)=>{
 
 export const updateCurrentUser = asyncErrorhandler(async(req,res,next)=>{
   
+
   let { id , name , avatar , email } = req.user
+  let file = req.files.photo
+
+  let result = await cloudinary.v2.uploader.upload(file.tempFilePath,{
+                                                                        folder: "users",
+                                                                        width: 150,
+                                                                        crop: "scale",
+                                                                      })
+  let newImage = {
+                    public_id:result.public_id,
+                    url:result.url
+                  } 
+
   let current = await prisma.user.findUnique(
                                                   {
                                                     where:{
@@ -243,9 +256,9 @@ export const updateCurrentUser = asyncErrorhandler(async(req,res,next)=>{
 
   //if user donot wish to update his name and attributes then use the default one
   let updatedName = req.body.name  ?  req.body.name : name 
-  let updatedAvatar = req.body.avatar ? req.body.name : avatar
+  let updatedAvatar = file ? newImage : avatar
   let updatedEmail = req.body.email ? req.body.password : email 
-  
+
   // udpate users with the new values if there is or fix the old one
   let updateduser = await prisma.user.update({
                                                 where:{

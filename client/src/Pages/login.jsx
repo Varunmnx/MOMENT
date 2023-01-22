@@ -6,7 +6,7 @@ import { useDispatch,useSelector } from "react-redux";
 import { loginUser  } from "../store/auth";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom"
-import { memo } from "react";
+
 export default  function Login () {
 
   const {status,notaUser,currentUser,loginStatus} = useSelector(state=>state.auth)
