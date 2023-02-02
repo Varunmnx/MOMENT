@@ -1,7 +1,7 @@
 import React, { useEffect,useState } from "react";
 import { useFormik } from "formik";
 import {basicSchema} from "../Schemas/FormSchemas"
-import Input  from "./Components/Input";
+import Input  from "../Components/Input";
 import { useDispatch,useSelector } from "react-redux";
 import { loginUser  } from "../store/auth";
 import { motion } from "framer-motion";
