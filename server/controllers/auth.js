@@ -8,8 +8,10 @@ import jwt from "jsonwebtoken"
 import { sendEmail } from "../utils/emailHelper.js";
 import crypto from "crypto"
 import cloudinary from "cloudinary"
+import { handleJWTSIGN } from "../utils/JWThandler.js";
 
 export const signupUser =asyncErrorhandler(async(req,res,next)=>{
+     console.log("SIGNUP")
 
     try{
         const { name, email, password } = req.body
@@ -18,6 +20,7 @@ export const signupUser =asyncErrorhandler(async(req,res,next)=>{
         
         if(!existing){
              await userCreator(name,email,password ,res)  }
+             
         else{  
                 next( new Errorhandler("existing user please login",200))
               }
@@ -45,14 +48,14 @@ export const loginUser = asyncErrorhandler(async(req, res,next) => {
             }
           
           else if(existing&&! await bcrypt.compare(password,existing.password)){
-                next(new Errorhandler("forgotten password ?",201))
+               return next(new Errorhandler("forgotten password ?",201))
             }
             else{
-              next(new Errorhandler("user donot exist sign up",404))
+             return next(new Errorhandler("user donot exist sign up",404))
             }
         
       }else{
-        next(new Errorhandler("user donot exist sign up",201))
+        return next(new Errorhandler("user donot exist sign up",201))
       }
 })
 
@@ -77,14 +80,14 @@ export const isAuthenticateduser =asyncErrorhandler(async(req,res,next)=>{
 
 export const logout =asyncErrorhandler(async(req,res,next)=>{
 
-       res.clearCookie("token").status(200).json({message:"logged out",success:true})
+    return  res.clearCookie("token").status(200).json({message:"logged out",success:true})
   })
 
 export const isuserAdmin=(...roles)=>{  
 
   return (req,res,next)=>{
     if(!roles.includes(req.user.role)){
-          next( new Errorhandler(`Role ${req.user.role} is not authorized to make changes`,201))
+        return  next( new Errorhandler(`Role ${req.user.role} is not authorized to make changes`,201))
     }
     next()
   }
@@ -92,7 +95,7 @@ export const isuserAdmin=(...roles)=>{
 
 export const listallUsers=asyncErrorhandler(async(req,res,next)=>{
     let allusers = await prisma.user.findMany()
-    res.status(200).json({all:allusers})
+   return res.status(200).json({all:allusers})
 })
 
 
@@ -106,7 +109,7 @@ export const forgotpassword = asyncErrorhandler(async(req,res,next)=>{
   })
  
   if(!user){
-    next(new Errorhandler("no user found",404)) 
+   return next(new Errorhandler("no user found",404)) 
   }
     let updateduser = await appendResetTokenAndResetTokenExpire(email)
     const resetpasswordUrl = `${req.protocol}://${req.get("host")}/password/reset/${updateduser.resetPasswordToken}`
@@ -119,7 +122,7 @@ export const forgotpassword = asyncErrorhandler(async(req,res,next)=>{
                         message
                       },next)
                       
-          res.status(200).json({
+       return   res.status(200).json({
             success:true,
             message:`Email sent to ${updateduser.email} please check your email to reset your password`
           })
@@ -134,7 +137,7 @@ export const forgotpassword = asyncErrorhandler(async(req,res,next)=>{
                 }
               })
             console.log(user)
-            next(new Errorhandler("unexpected email sending failure",404))
+          return  next(new Errorhandler("unexpected email sending failure",404))
             }
           }
   )
@@ -159,7 +162,7 @@ export const resetPassword = asyncErrorhandler(async(req,res,next) =>{
 
 
   if(!user){
-    next(new Errorhandler("sorry your time is expired it seems or something went wrong",404)) }                
+   return next(new Errorhandler("sorry your time is expired it seems or something went wrong",404)) }                
   if(user &&( Number( user.resetPasswordExpire ) >= Number( now )  ) ){
 
               let reseted = await prisma.user.update({
@@ -173,11 +176,11 @@ export const resetPassword = asyncErrorhandler(async(req,res,next) =>{
                                                         }
                                                         })
           
-              res.status(200).json({
+          return    res.status(200).json({
                 reseted
               })
             }else{
-              next(new Errorhandler("sorry your time has been expired",404))
+        return      next(new Errorhandler("sorry your time has been expired",404))
             }
 
 })
@@ -196,10 +199,10 @@ export const userDetails=asyncErrorhandler(async(req,res,next)=>{
                                                     )
           // if user not found return error
           if(!currentUser){
-            next(new Errorhandler("user not found ",401))
+           return next(new Errorhandler("user not found ",401))
           }
           // if user found then send success
-          res.status(200).json({
+         return res.status(200).json({
             user:currentUser,
             status:"success"
           })
@@ -216,7 +219,7 @@ export const deleteUser =asyncErrorhandler(async(req,res,next)=>{
                                               }
                                             })
   if(!deleted)next(new Errorhandler("user cannot be deleted no user exist in db",404))
-  res.status(201).json({
+return  res.status(201).json({
     status:"success",
     deleted :deleted
   })
@@ -251,7 +254,7 @@ export const updateCurrentUser = asyncErrorhandler(async(req,res,next)=>{
                                                 )
 
   if(!current){
-    next(new Errorhandler("some error occured user not in db",401))
+   return next(new Errorhandler("some error occured user not in db",401))
   }
 
   //if user donot wish to update his name and attributes then use the default one
@@ -272,7 +275,7 @@ export const updateCurrentUser = asyncErrorhandler(async(req,res,next)=>{
                                                 }
                                               })
 
-  res.status(201).json({
+ return res.status(201).json({
     status:"success",
     user: updateduser
   })
@@ -289,7 +292,7 @@ export const deleteUserAsSuperUser =asyncErrorhandler(async(req,res,next)=>{
                             })
   if(!deleted)next(new Errorhandler("User not found or something went wrong",404))
 
-  res.status(201).json({
+ return res.status(201).json({
     status:"success",
     deleted
   })
@@ -303,7 +306,7 @@ export const detailedUser =asyncErrorhandler(async(req,res,next)=>{
     }
   })
   
-  res.status(200).json({
+ return res.status(200).json({
     user:currentuser,
     status:"success"
   })
@@ -329,9 +332,50 @@ export const editExistingUser = asyncErrorhandler(async(req,res,next)=>{
                           role  } } )}
                       
   if(!updateduser)next(new Errorhandler("something went wrong or this user donot exist ",401))
-  res.status(201).json({
+return res.status(201).json({
     user:updateduser,
     status:"success"
   })
 
 })
+
+
+// verify email
+
+export const verifyEmail = async (req,res , next)=>{                  
+  try{
+       const {otp , email }  = req.body
+       let user = await prisma.user.findFirst( {
+                                            where:{
+                                                  otp ,
+                                                  email
+                                            }
+                                        })
+
+        user =   await  prisma.user.update({
+                            where:{ id : user.id},
+                            data:{
+                              isEmailVerified : true
+                                    
+                            }
+       })
+
+       let token = handleJWTSIGN(user.id)
+       let options ={
+         expires: new Date( Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 *60 * 1000 ),
+         httpOnly:true
+       }
+       // store cookie as token
+      return  res.status(201).cookie("token",token,options).json({
+           status:true,
+           user:user,
+           token
+         })
+      
+
+      
+  }catch(err){
+       console.log(err.message)
+       res.status(502).json({message:"something went wrong try again later"})
+  }
+}

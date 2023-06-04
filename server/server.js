@@ -14,6 +14,10 @@ import cloudinary from "cloudinary"
 import { errorHandlerMiddleWare } from "./middlewares/errormiddleware.js";
 const prisma = new PrismaClient()
 import fileUpload from "express-fileupload"
+import {setUpGoogleAndFacebookPassportAuthSetup} from "./utils/passPort.config.js"
+
+
+setUpGoogleAndFacebookPassportAuthSetup()
 
 cloudinary.config({  
     cloud_name:process.env.CLOUD_NAME,  

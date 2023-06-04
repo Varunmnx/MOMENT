@@ -63,6 +63,8 @@ model User {
   role                String @default("user")
   shoppingCart        ShoppingCart[]  // one to  many rel
   comments            Reviews[] //one to many rel
+  isEmailVerified     Boolean @default(false)
+  otp                 String  @default("")
 }
 
 // one user can have many cart items ie one user with many items related with shopping cart

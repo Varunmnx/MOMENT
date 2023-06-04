@@ -1,7 +1,7 @@
 import express  from "express";
 
 
-import {signupUser,loginUser,isAuthenticateduser,logout,isuserAdmin,listallUsers,forgotpassword ,resetPassword ,userDetails,deleteUser, updateCurrentUser , detailedUser ,editExistingUser} from "../controllers/auth.js"
+import { verifyEmail ,signupUser,loginUser,isAuthenticateduser,logout,isuserAdmin,listallUsers,forgotpassword ,resetPassword ,userDetails,deleteUser, updateCurrentUser , detailedUser ,editExistingUser} from "../controllers/auth.js"
 
 
 let router = express.Router()
@@ -12,6 +12,7 @@ router.put("/profile/update",isAuthenticateduser,updateCurrentUser)
 router.delete("/profile/deleteaccount",isAuthenticateduser,deleteUser)
 router.post("/register",signupUser)
 // router.put("/updatedetails")
+router.post("/email/verify",verifyEmail)
 router.post("/login",loginUser)
 router.get("/logout",logout) 
 router.post("/forgotpassword",forgotpassword)
